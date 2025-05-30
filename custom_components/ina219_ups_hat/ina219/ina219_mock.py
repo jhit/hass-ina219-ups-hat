@@ -4,8 +4,8 @@ from .ina219_interface import INA219Interface
 
 
 class MockINA219(INA219Interface):
-    def __init__(self, i2c_bus=1, addr=0x40):
-        print("Mocked ina219 started for bus=%2d, addr=%2d" % (i2c_bus, addr))
+    def __init__(self, i2c_bus=1, addr=0x40, cal_mode='32V'):
+        print("Mocked ina219 started for bus=%2d, addr=%2d, cal_mode=%3c" % (i2c_bus, addr, cal_mode))
 
     def getShuntVoltage_mV(self):
         value = random.randint(20, 200)

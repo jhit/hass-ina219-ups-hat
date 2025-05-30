@@ -52,6 +52,7 @@ ina219_ups_hat:
   unique_id: hassio_ups     # Optional
   addr: 0x41                # Required
   bus: 1                    # Optional, default=1
+  cal_mode: 32V             # Optional, default=32V
   scan_interval: 10         # Optional, default=60
   batteries_count: 3        # Optional, default=3
   battery_capacity: 3000    # Optional, default=3000
@@ -61,9 +62,16 @@ ina219_ups_hat:
   min_charging_current: 55  # Optional, mA, default=55
 ```
 
+#### i2c Bus Number (bus)
+The default value for POE hats is `2`. For the Waveshare CM4 carrier board CM4-POE-UPS_BASE the i2c bus has to be changed to `10`.
+
+#### Calibration Mode (cal_mode)
+Hats and compute module 4 carrier boards run on different voltage. While hats use the 32V / 2A calibration, CM4 carrier boards need 12V / 5A calibration.
+
 #### Batteries Count
 
 The original Waveshare UPS Hat has 2 batteries in series (8.4V), but some versions of the UPS Hats may have 3 batteries (12.6V). If you have more than 2 batteries in series, use the `batteries_count` parameter.
+For the CM4-POE-UPS-BASE all batteries are in parallel mode. You need to set the `batteries_count: 1`. 
 
 #### Battery Capacity
 

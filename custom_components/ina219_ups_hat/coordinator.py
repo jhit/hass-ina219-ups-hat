@@ -9,6 +9,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import (
     CONF_ADDR,
+    CONF_CAL_MODE,
     CONF_BATTERIES_COUNT,
     CONF_BATTERY_CAPACITY,
     CONF_BUS,
@@ -34,6 +35,7 @@ class INA219UpsHatCoordinator(DataUpdateCoordinator):
 
         self._addr = config.get(CONF_ADDR)
         self._bus = config.get(CONF_BUS)
+        self._cal_mode = config.get(CONF_CAL_MODE)
         self._max_soc = config.get(CONF_MAX_SOC)
         self._battery_capacity = config.get(CONF_BATTERY_CAPACITY)
         self._batteries_count = config.get(CONF_BATTERIES_COUNT)
@@ -42,7 +44,7 @@ class INA219UpsHatCoordinator(DataUpdateCoordinator):
         self._min_charging_current = config.get(CONF_MIN_CHARGING_CURRENT)
 
         INA219 = get_ina219_class()
-        self._ina219 = INA219(i2c_bus=int(self._bus), addr=int(self._addr))
+        self._ina219 = INA219(i2c_bus=int(self._bus), addr=int(self._addr), cal_mode=str(self._cal_mode))
         self._ina219_wrapper = INA219Wrapper(self._ina219, self._sma_samples)
 
         self._socOcvProvider = SocOcvProvider(hass, DEFAULT_OCV)
@@ -50,7 +52,7 @@ class INA219UpsHatCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name="ina219_ups_hat",
+            name=self.id_prefix,
             update_method=self._update_data,
         )
 
@@ -70,7 +72,7 @@ class INA219UpsHatCoordinator(DataUpdateCoordinator):
             # power = ina219_wrapper.getPowerSMA_W()  # power in W
 
             smooth_bus_voltage = ina219_wrapper.getBusVoltageSMAx2_V()
-            smooth_current = ina219_wrapper.getCurrentSMAx2_mA()
+            # smooth_current = ina219_wrapper.getCurrentSMAx2_mA()
 
             soc = self._socOcvProvider.get_soc_from_voltage(
                 smooth_bus_voltage / self._batteries_count
@@ -79,21 +81,20 @@ class INA219UpsHatCoordinator(DataUpdateCoordinator):
             power_calculated = bus_voltage * (current / 1000)
 
             current_lowres = round(current / 1000, 2) * 1000  # current in mA
-            online = bool(current_lowres > self._min_online_current)
-            charging = bool(current_lowres > self._min_charging_current)
+            online = bool(current_lowres < self._min_online_current)
+            charging = bool(current_lowres < (-1 * self._min_charging_current))
 
             if self._battery_capacity is None:
                 remaining_battery_capacity = None
                 remaining_time = None
             else:
                 remaining_battery_capacity = (self._battery_capacity / 100.0) * soc
-                remaining_battery_capacity = (self._battery_capacity / 100.0) * soc
                 if not online:
                     remaining_time = round(
                         10
                         * (remaining_battery_capacity / 1000)
                         / -(
-                            smooth_bus_voltage * (smooth_current / 1000)
+                            bus_voltage * (current / 1000)
                         ),  # Smooth power
                         1,
                     )

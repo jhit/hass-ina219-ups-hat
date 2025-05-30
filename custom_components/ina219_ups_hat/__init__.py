@@ -16,6 +16,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     CONF_ADDR,
+    CONF_CAL_MODE,
     CONF_BATTERIES_COUNT,
     CONF_BATTERY_CAPACITY,
     CONF_BUS,
@@ -26,6 +27,8 @@ from .const import (
     CONF_SMA_SAMPLES,
     DEFAULT_NAME,
     DEFAULT_UNIQUE_ID,
+    DEFAULT_BUS,
+    DEFAULT_CAL_MODE,
     DOMAIN,
 )
 from .coordinator import INA219UpsHatCoordinator
@@ -39,7 +42,8 @@ CONFIG_SCHEMA = vol.Schema(
         DOMAIN: vol.Schema(
             {
                 vol.Required(CONF_ADDR): cv.string,
-                vol.Optional(CONF_BUS, default=1): int,
+                vol.Optional(CONF_BUS, default=DEFAULT_BUS): cv.positive_int,
+                vol.Optional(CONF_CAL_MODE, default=DEFAULT_CAL_MODE): cv.string,
                 vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
                 vol.Optional(CONF_UNIQUE_ID, default=DEFAULT_UNIQUE_ID): cv.string,
                 vol.Optional(CONF_SCAN_INTERVAL, default=60): int,

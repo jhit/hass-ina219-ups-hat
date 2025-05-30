@@ -1,0 +1,13 @@
+ina219_ups_hat:
+  name: Waveshare UPS # Optional
+  unique_id: waveshare_ups # Optional
+  addr: 0x43 # Required
+  bus: 10 # Optional, default=1
+  cal_mode: 16V # Optional, default=32V. 16V calibration for CM4-POE carrier boards from Waveshare.
+  scan_interval: 10 # Optional
+  batteries_count: 1 # Optional
+  battery_capacity: 10350 # Optional
+  #max_soc: 91               # Optional
+  sma_samples: 5 # Optional
+  min_online_current: 10 # Optional, mA
+  min_charging_current: 1000 # Optional, mA# Required
